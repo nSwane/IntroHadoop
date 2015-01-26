@@ -16,26 +16,26 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 public class Question1_1 {
-	public static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+	public static class MyMapper extends Mapper<LongWritable, Text, Text, LongWritable> {
 		@Override
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			for (String word: value.toString().split("\\s+")){
-				context.write(new Text(word), new IntWritable(1));
+				context.write(new Text(word), new LongWritable(1));
 			}
 		}
 	}
 
-	public static class MyReducer extends Reducer<Text, IntWritable, Text, LongWritable> {
+	public static class MyReducer extends Reducer<Text, LongWritable, Text, LongWritable> {
 		@Override
-		protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+		protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
 			long sum = 0;
-			for(IntWritable value: values){
+			for(LongWritable value: values){
 				sum += value.get();
 			}
 			context.write(key, new LongWritable(sum));
 		}
 	}
-
+	
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
@@ -44,9 +44,12 @@ public class Question1_1 {
 		Job job = Job.getInstance(conf, "Question1_1");
 		job.setJarByClass(Question1_1.class);
 		
+		// l'utilisation de ce combiner permet de diminuer le nombre de donnees a traiter lors du reduce
+		//job.setCombinerClass(MyReducer.class);
+		
 		job.setMapperClass(MyMapper.class);
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(IntWritable.class);
+		job.setMapOutputValueClass(LongWritable.class);
 
 		job.setReducerClass(MyReducer.class);
 		job.setOutputKeyClass(Text.class);
