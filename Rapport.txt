@@ -65,3 +65,16 @@
 1.6 In-Mapper Combiner
 
 1.7 Compteur
+
+2.1 Map et Reduce
+
+2.2 Combiner
+	
+	Question:
+		Dans le cas d'un combiner, il aurait fallut utiliser une structure de données contenant:
+			- 1 champ pour le tag de type TEXT ou STRING
+			- 1 champ pour le nombre d'occurence de type INTEGER
+			
+		Le map retournerait donc un couple clé valeur avec:
+			- la clé étant l'identifiant du pays
+			- la valeur étant la structure de données i.e les tags et leurs nombre d'occurences
