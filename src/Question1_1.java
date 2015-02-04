@@ -3,7 +3,6 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -45,7 +44,10 @@ public class Question1_1 {
 		job.setJarByClass(Question1_1.class);
 		
 		// l'utilisation de ce combiner permet de diminuer le nombre de donnees a traiter lors du reduce
-		//job.setCombinerClass(MyReducer.class);
+		job.setCombinerClass(MyReducer.class);
+		
+		// Fixer le nombre de reducers a 3
+		job.setNumReduceTasks(3);
 		
 		job.setMapperClass(MyMapper.class);
 		job.setMapOutputKeyClass(Text.class);
