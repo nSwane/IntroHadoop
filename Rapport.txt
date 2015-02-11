@@ -89,3 +89,12 @@
 		* Ne connaissant pas a priori la taille de la structure, un processus peut essayer
 		d'utiliser plus de resources que disponible. Une exception OutOfMemory devrait être
 		levé à l'éxécution.
+		
+		pay+freq --> trier
+		pay --> grouper
+		
+3 - Question préliminaire
+pro tip dans:
+https://vangjee.wordpress.com/2012/03/20/secondary-sorting-aka-sorting-values-in-hadoops-mapreduce-programming-paradigm/
+job 1:
+		
