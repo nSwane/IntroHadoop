@@ -71,10 +71,21 @@
 2.2 Combiner
 	
 	Question:
-		Dans le cas d'un combiner, il aurait fallut utiliser une structure de données contenant:
+		* Dans le cas d'un combiner, il faudrait utiliser une structure de données contenant:
 			- 1 champ pour le tag de type TEXT ou STRING
 			- 1 champ pour le nombre d'occurence de type INTEGER
 			
 		Le map retournerait donc un couple clé valeur avec:
 			- la clé étant l'identifiant du pays
 			- la valeur étant la structure de données i.e les tags et leurs nombre d'occurences
+			
+		* Les 5 tags les plus utilisés en France sont:
+			- france avec 563 occurences
+			- spain avec 113 occurences
+			- europe avec 75 occurences
+			- españa avec 70 occurences
+			- bretagne avec 67 occurences
+			
+		* Ne connaissant pas a priori la taille de la structure, un processus peut essayer
+		d'utiliser plus de resources que disponible. Une exception OutOfMemory devrait être
+		levé à l'éxécution.
