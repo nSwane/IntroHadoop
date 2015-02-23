@@ -93,8 +93,38 @@
 		pay+freq --> trier
 		pay --> grouper
 		
-3 - Question préliminaire
-pro tip dans:
-https://vangjee.wordpress.com/2012/03/20/secondary-sorting-aka-sorting-values-in-hadoops-mapreduce-programming-paradigm/
-job 1:
-		
+3 - MapReduce en chaîne
+
+	* Question préliminaire
+	
+		Les deux jobs ont chacun une fonctions particuliére:
+			- le premier compte le nombre d'occurence des tags par pays.
+			- le second s'occupe de trier le resultat et de récupérer le top K uniquement.
+			
+		Les mappers et reducers de chaque job se comporteront de la façon suivante:
+			- pour le premier job:
+				+ Map: <Cle, valeur> -> <{Pays, Tag}, Frequence>
+				
+				Le mapper parse le fichier d'entrée puis associe à chaque clé {Pays, Tag} la fréquence du tag.
+				
+				+ Reducer: <{Pays, Tag}, Frequence> -> <{Pays, Tag}, Frequence>
+				
+				Le reducer somme les frequences pour chaque clé {Pays, Tag}.
+				
+				A ce niveau on a associé la fréquence de tag pour chaque clé {Pays, Tag}.
+				Il reste donc à trier les données ainsi obtenu afin d'avoir un resultat trié par pays puis tag et enfin le top k.
+				
+			- pour le deuxième job:
+				+ Map: <{Pays, Tag}, Frequence> -> <{Pays, Frequence}, Tag>
+				
+				Le mapper ne fait que restructurer les données pour le trie qui se produira juste avant les reduces.
+				
+				Un premier trie effectué par Hadoop à lieu à l'issue du mapper mais le framework nous permet de définir
+				une nouvelle passe qui va nous permettre de parametrer le trie des données.
+				On indiquera dans un premier temps comment les valeurs seront distribués aux reducers ('Grouping' par pays) puis la façon dont les
+				couples <clé, valeur> seront triés ('Sort' par pays puis par frequence).
+				
+				+ Reducer: <{Pays, Frequence}, Tag> -> <{Pays, Tag}, Frequence>
+				
+				Le reducer récupére un ensemble de données complétement trié.
+				Les k-premieres valeurs du reducer correspondent au top k du pays définit dans la clé.

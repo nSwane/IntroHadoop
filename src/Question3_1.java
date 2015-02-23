@@ -1,6 +1,5 @@
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.util.Iterator;
 
 import org.apache.hadoop.conf.Configuration;
@@ -42,7 +41,7 @@ public class Question3_1 {
 				Country country = Country.getCountryAt(Double.parseDouble(fields[LAT_POSITION]), Double.parseDouble(fields[LON_POSITION]));
 				if(country != null){
 					for(String tag: fields[TAG_POSITION].split(",")){
-						context.write(new CountryTag(country.toString(), tag), new LongWritable());
+						context.write(new CountryTag(country.toString(), tag), new LongWritable(1));
 					}
 				}
 			}
@@ -81,13 +80,14 @@ public class Question3_1 {
 			int i, k;
 			Iterator<Text> it_values;
 			
-			// Number of tags per country
+			// Number of tags per country: top k
 			k = Integer.parseInt(context.getConfiguration().get("K"));
 			i = 0;
 			it_values = values.iterator();
 			while(i < k && it_values.hasNext()){
 				Text tag = it_values.next();
 				context.write(new CountryTag(key.getCountry().toString(), tag.toString()), new LongWritable(key.getFrequency()));
+				i++;
 			}
 		}
 	}
@@ -147,7 +147,7 @@ public class Question3_1 {
 		job2.setOutputKeyClass(CountryTag.class);
 		job2.setOutputValueClass(LongWritable.class);
 		
-		FileInputFormat.addInputPath(job2, new Path(tmp));
+		FileInputFormat.addInputPath(job2, new Path(tmp+"/part-r-00000"));
 		job2.setInputFormatClass(SequenceFileInputFormat.class);
 		
 		FileOutputFormat.setOutputPath(job2, new Path(output));

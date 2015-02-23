@@ -57,19 +57,33 @@ public class CountryTag implements Writable, WritableComparable<CountryTag> {
 
 	@Override
 	public int compareTo(CountryTag o) {
-		if(this.country.toString().compareTo(o.getCountry().toString()) < 0)
-			return -1;
-		else
-			if(this.country.toString().compareTo(o.getCountry().toString()) > 0)
-				return 1;
-			else
-				if(this.tag.toString().compareTo(o.getTag().toString()) < 0)
-					return -1;
-				else
-					if(this.tag.toString().compareTo(o.getTag().toString()) > 0)
-						return 1;
-					else
+		int returnedC = this.country.toString().compareTo(o.getCountry().toString());
+		
+		// Normally if the argument is greater than this object, we should return -1 but hadoop wants 1. Weird....
+		
+		if(returnedC < 0){
+			return 1;
+		}
+		else{
+			if(returnedC > 0){
+				return -1;
+			}
+			else{
+				int returnedT = this.tag.toString().compareTo(o.getTag().toString());
+				if(returnedT < 0){
+					return 1;
+				}
+				else{
+					if(returnedT > 0){
+						return -1;
+					}
+					else{
 						return 0;
+					}
+				}
+				// return returnedT;
+			}
+		}
 	}
 	
 	public String toString(){

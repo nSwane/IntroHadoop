@@ -10,6 +10,7 @@ import org.apache.hadoop.io.WritableComparator;
 public class CountryComparator extends WritableComparator{
 
 	public CountryComparator(){
+		super(CountryFrequency.class, true);
 	}
 	
 	public int compare(WritableComparable w1, WritableComparable w2){

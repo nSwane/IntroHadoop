@@ -52,17 +52,21 @@ public class CountryFrequency implements Writable, WritableComparable<CountryFre
 	
 		@Override
 		public int compareTo(CountryFrequency o) {
-			if(this.country.toString().compareTo(o.getCountry().toString()) < 0)
-				return -1;
+			int returned = this.country.toString().compareTo(o.getCountry().toString());
+			
+			// Normally if the argument is greater than this object, we should return -1 but hadoop wants 1. Weird....
+			
+			if(returned < 0)
+				return 1;
 			else
-				if(this.country.toString().compareTo(o.getCountry().toString()) > 0)
-					return 1;
+				if(returned > 0)
+					return -1;
 				else
 					if(this.frequency < o.getFrequency())
-						return -1;
+						return 1;
 					else
 						if(this.frequency > o.getFrequency())
-							return 1;
+							return -1;
 						else
 							return 0;
 		}
