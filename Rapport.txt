@@ -1,50 +1,52 @@
 1.1 Execution d'un modele
 
 	1.
-		* map input records MIR = nombre de couples <cle,valeur> en entree de map.
-		* map output records MOR = nombre de couples <cle,valeur> en sortie de map.
+		* map input records correspond au nombre de couples <cle,valeur> en entree de map.
+		* map output records correspond au nombre de couples <cle,valeur> en sortie de map.
 		
 	2.
-		* reduce input records RIR correspond au nombre de couples <cle,valeur> produit par map.
-		RIR <= MOR.
-			- RIR = MOR en l'absence de combiner entre un map reduce successif ou dans le cas ou il y a un combiner inneficace..
-			- RIR < MOR dans le cas d'utilisation d'un combiner effectif entre 1 map reduce successif.
+		* reduce input records correspond:
+			- soit au nombre de couples <cle,valeur> produit par map en l'absence de combiner.
+			- soit au nombre de couples <cle,valeur> produit par combine.
+			
 		
 	3.
-		* Apres un map, un traitement consistent a regrouper toutes les valeurs d'une meme cle est effectue.
+		* Apres un map, un traitement consistent à regrouper toutes les valeurs d'une même clé est effectué.
 		Le reduce qui suit le map utilise les couples <cle,liste(valeurs)> produit lors du traitement intermediaire.
-		reduce input groups correspond au nombre de groupes ainsi calcule. 
+		reduce input groups correspond au nombre de groupes ainsi calculé (le nombre de clé sans doublon). 
 	
 1.2 Premier contact avec HDFS
 
 	* Question:
-		Chemin vers le reperetoire personnel = /user/<nom_user>
-		Dans notre casm /user/kullae
+	
+		Chemin vers le reperetoire personnel dans HDFS = /user/<nom_user> (avec hdfs dfs -ls /user)
+		Dans notre cas /user/kullae (différent du chemin vers le repertoire personnel local).
 		
 1.3 Execution sur le cluster
+
 	* Question:
+	
 		5 splits ou blocs sont lu sur HDFS, 1 pour chacun des 5 tomes des miserables.
 		Le compteur "number of splits" indique cette valeur.
 	
 1.4 Combiner
+
 	1.
-		* On constate qu'il y a eu un certain nombre d'appels au combiner.
-		Les compteurs "Combine input records" et "Combine output records" indiquent le nombre de
+		* Les compteurs "Combine input records" et "Combine output records" indiquent le nombre de
 		couples <clé, valeur> en entrée et sortie du combiner.
 		
 	2.
-		Dans le cas des 5 tomes des misérables, l'utilisation du combiner divise
+		* Dans le cas des 5 tomes des misérables, l'utilisation du combiner divise
 		le nombre de données à traiter pour les reducers d'un facteur à peu prés égal à 4.
-		On retrouve ce facteur sur la quantité de données:
-			- écrite sur le disk en sortie de map (compteur "Map output materialized bytes"):
+		On retrouve ce facteur sur la quantité de données écrite sur le disk en sortie de map (compteur "Map output materialized bytes"):
 				--> 6750655 bytes sans combiner
 				--> 1645046 bytes avec combiner
 
 	3.
 		* Il y a deux façons de connaitre le mot le plus utilisé:
 			- en se servant du fait que hadoop renvoi un résultat trié par clé
-			et donc en modifiant le reducer de wordcount. Au lieu définir la clé
-			comme étant le mot, on choisit la somme.
+			et donc en modifiant le reducer de wordcount. Au lieu définir le mot
+			comme étant la clé, on choisit la somme.
 			
 			- avec la commande unix: sort -r -n -k 2 <fichier_resultat>
 			
@@ -52,8 +54,10 @@
 			"de" avec un total d'occurences de 16757.
 			
 1.5 Nombre de reducers
+
 	* Question:
-		Chaque reducer génére indépendemment un fichier résultat. Une fois que les mappers finissent
+	
+		* Chaque reducer génére indépendemment un fichier résultat. Une fois que les mappers finissent
 		de s'éxécuter, il n y a plus de raison de synchroniser les reducers qui étaient en attente du
 		regroupement des clés. Chaque reducer peut gérer une ou un groupe de clé indépendemment des autres.
 		Comme on a fixé le nombre de reducers à 3, on retrouve 3 fichiers résultats dans le répértoire.
@@ -63,17 +67,18 @@
 		Par défaut, Hadoop en ajoute autant qu'il le juge utile.
 
 1.6 In-Mapper Combiner
-
+	
 1.7 Compteur
 
 2.1 Map et Reduce
 
 2.2 Combiner
 	
-	Question:
+	* Question:
+	
 		* Dans le cas d'un combiner, il faudrait utiliser une structure de données contenant:
-			- 1 champ pour le tag de type TEXT ou STRING
-			- 1 champ pour le nombre d'occurence de type INTEGER
+			- 1 champ pour le tag de type TEXT
+			- 1 champ pour le nombre d'occurence de type LONG
 			
 		Le map retournerait donc un couple clé valeur avec:
 			- la clé étant l'identifiant du pays
@@ -86,14 +91,11 @@
 			- españa avec 70 occurences
 			- bretagne avec 67 occurences
 			
-		* Ne connaissant pas a priori la taille de la structure, un processus peut essayer
+		* Ne connaissant pas a priori la taille de la structure (la HashMap), un processus peut essayer
 		d'utiliser plus de resources que disponible. Une exception OutOfMemory devrait être
 		levé à l'éxécution.
 		
-		pay+freq --> trier
-		pay --> grouper
-		
-3 - MapReduce en chaîne
+3 - Top-tag Flickr par pays, avec tri Hadoop
 
 	* Question préliminaire
 	
@@ -128,3 +130,5 @@
 				
 				Le reducer récupére un ensemble de données complétement trié.
 				Les k-premieres valeurs du reducer correspondent au top k du pays définit dans la clé.
+				
+3.1 Passes Map Reduce en chaîne

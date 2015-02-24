@@ -64,7 +64,28 @@ public class StringAndInt implements WritableComparable<StringAndInt>, Writable 
 
 	@Override
 	public int compareTo(StringAndInt o) {
-		return 0;
+		int returned = this.tag.toString().compareTo(o.getTag().toString());
+		if(returned < 0){
+			return 1;
+		}
+		else{
+			if(returned > 0){
+				return -1;
+			}
+			else{
+				if(this.numberOcc < o.getNumberOcc()){
+					return 1;
+				}
+				else{
+					if(this.numberOcc > o.getNumberOcc()){
+						return -1;
+					}
+					else{
+						return 0;
+					}
+				}
+			}
+		}
 	}
 
 }

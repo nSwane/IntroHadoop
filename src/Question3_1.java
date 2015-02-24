@@ -113,7 +113,7 @@ public class Question3_1 {
 		job.setMapOutputKeyClass(CountryTag.class);
 		job.setMapOutputValueClass(LongWritable.class);
 
-		//job.setCombinerClass(MyCombiner.class);
+		job.setCombinerClass(MyReducer1.class);
 		
 		job.setReducerClass(MyReducer1.class);
 		job.setOutputKeyClass(CountryTag.class);
