@@ -132,3 +132,8 @@
 				Les k-premieres valeurs du reducer correspondent au top k du pays définit dans la clé.
 				
 3.1 Passes Map Reduce en chaîne
+
+	* Question:
+	
+		* Gain au niveau du 2e reduce:
+		* Cas ex aequo:

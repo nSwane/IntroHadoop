@@ -8,7 +8,6 @@ import org.apache.hadoop.io.WritableComparable;
 
 public class StringAndInt implements WritableComparable<StringAndInt>, Writable {
 
-	private Text pays;
 	private Text tag;
 	private int numberOcc;
 	
@@ -23,14 +22,6 @@ public class StringAndInt implements WritableComparable<StringAndInt>, Writable 
 		this.numberOcc = numberOcc;
 	}
 
-	public Text getPays() {
-		return pays;
-	}
-
-	public void setPays(Text pays) {
-		this.pays = pays;
-	}
-	
 	public String getTag() {
 		return tag.toString();
 	}
@@ -49,7 +40,6 @@ public class StringAndInt implements WritableComparable<StringAndInt>, Writable 
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
-		this.pays.readFields(in);
 		this.tag.readFields(in);
 		this.numberOcc = in.readInt();
 
@@ -57,34 +47,30 @@ public class StringAndInt implements WritableComparable<StringAndInt>, Writable 
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		this.pays.write(out);
 		this.tag.write(out);
 		out.writeInt(this.numberOcc);
 	}
 
 	@Override
 	public int compareTo(StringAndInt o) {
-		int returned = this.tag.toString().compareTo(o.getTag().toString());
-		if(returned < 0){
-			return 1;
-		}
-		else{
-			if(returned > 0){
-				return -1;
+		// We want descending order!! That's why multiply by (-1)
+		int returnedT = this.tag.toString().compareTo(o.getTag().toString())*(-1);
+		
+		if(returnedT == 0){
+			if(this.numberOcc < o.getNumberOcc()){
+				return 1;
 			}
 			else{
-				if(this.numberOcc < o.getNumberOcc()){
-					return 1;
+				if(this.numberOcc > o.getNumberOcc()){
+					return -1;
 				}
 				else{
-					if(this.numberOcc > o.getNumberOcc()){
-						return -1;
-					}
-					else{
-						return 0;
-					}
+					return 0;
 				}
 			}
+		}
+		else{
+			return returnedT;
 		}
 	}
 

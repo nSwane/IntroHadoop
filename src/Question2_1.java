@@ -84,7 +84,6 @@ public class Question2_1 {
 			
 			// Return results
 			while(!queue.isEmpty()){
-				// The MinMaxPriorityQueue the natural order by default
 				StringAndInt o = queue.removeFirst();
 				context.write(new Text(key), new Text(java.net.URLDecoder.decode(o.getTag(), "UTF-8")+" "+map.get(o.getTag())));
 			}
