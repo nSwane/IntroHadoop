@@ -134,9 +134,9 @@ M2PGI
 				
 				Le mapper ne fait que restructurer les données pour le trie qui se produira juste avant les reduces.
 				
-				Un premier trie effectué par Hadoop à lieu à l'issue du mapper mais le framework nous permet de définir
+				Un premier trie effectué par Hadoop a lieu à l'issue du mapper mais le framework nous permet de définir
 				une nouvelle passe qui va nous permettre de parametrer le trie des données.
-				On indiquera dans un premier temps comment les valeurs seront distribués aux reducers ('Grouping' par pays) puis la façon dont les
+				On indiquera dans un premier temps comment les valeurs seront distribuées aux reducers ('Grouping' par pays) puis la façon dont les
 				couples <clé, valeur> seront triés ('Sort' par pays puis par frequence).
 				
 				+ Reducer: <{Pays, Frequence}, Tag> -> <{Pays, Tag}, Frequence>
