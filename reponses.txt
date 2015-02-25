@@ -148,8 +148,6 @@ M2PGI
 
 	* Question:
 
-		* Gain au niveau du 2e reduce:
-		
 		* Cas ex aequo:
 		
 			La partie shuffle and sort entre le map et le reduce se fait en même temps. Des qu'un map se termine,
