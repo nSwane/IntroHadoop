@@ -6,7 +6,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
 
-public class Interval implements Writable, WritableComparable<Interval> {
+public class Interval implements WritableComparable<Interval> {
 	private long min;
 	private long max;
 	
@@ -44,6 +44,10 @@ public class Interval implements Writable, WritableComparable<Interval> {
 	@Override
 	public void write(DataOutput out) throws IOException {
 		out.writeLong(this.min);
-		out.writeLong(this.min);
+		out.writeLong(this.max);
+	}
+	
+	public String toString(){
+		return "["+min+", "+max+"]";
 	}
 }

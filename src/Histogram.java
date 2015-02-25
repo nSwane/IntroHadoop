@@ -10,9 +10,11 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 /**
@@ -23,7 +25,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
  */
 public class Histogram {
 	
-	// ---------- Job1 : Calcul du nombre de tag par pays ---------- //
+	// ---------- Job1 : Compute number of tags per country ---------- //
 	
 	public static class MyMapper1 extends Mapper<LongWritable, Text, Text, LongWritable> {
 
@@ -62,7 +64,7 @@ public class Histogram {
 				sum += value.get();
 			}
 			
-			// Retourne une cle {Pays, Nombre tags}
+			// Return {Country, Number of tags} key
 			context.write(key, new LongWritable(sum));
 		}
 	}
@@ -72,7 +74,12 @@ public class Histogram {
 	public static class MyMapper2 extends Mapper<Text, LongWritable, Interval, Text> {
 
 		private Interval longToInterval(long value){
-			return null;
+			long width = 1000;
+			
+			long mod = value%width;
+			long min = value - mod;
+			long max = value + (width - mod);
+			return new Interval(min, max);
 		}
 		
 		@Override
@@ -82,10 +89,18 @@ public class Histogram {
 		
 	}
 	
-	public static class MyReducer2 extends Reducer<LongWritable, Text, LongWritable, LongWritable> {
+	public static class MyReducer2 extends Reducer<Interval, Text, Interval, LongWritable> {
 		
 		@Override
-		protected void reduce(LongWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+		protected void reduce(Interval key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			// Number of country in the interval key
+			int counter = 0;
+		
+			for(Text t: values){
+				counter++;
+			}
+			
+			context.write(key, new LongWritable(counter));
 		}
 	}
 	
@@ -94,24 +109,58 @@ public class Histogram {
 		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 		String input = otherArgs[0];
 		String output = otherArgs[1];
-				
+		String tmp = "Histogram_tmp";
+		
+		boolean exit_state = true;
+		
+		// ---------- Job1 : Compute number of tags per country ---------- //
+
 		Job job = Job.getInstance(conf, "Histogram");
 		job.setJarByClass(Histogram.class);
 		
 		job.setMapperClass(MyMapper1.class);
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(Text.class);
+		job.setMapOutputValueClass(LongWritable.class);
 
+		job.setCombinerClass(MyReducer1.class);
+		
 		job.setReducerClass(MyReducer1.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(Text.class);
+		job.setOutputValueClass(LongWritable.class);
 		
 		FileInputFormat.addInputPath(job, new Path(input));
 		job.setInputFormatClass(TextInputFormat.class);
 		
-		FileOutputFormat.setOutputPath(job, new Path(output));
-		job.setOutputFormatClass(TextOutputFormat.class);
+		FileOutputFormat.setOutputPath(job, new Path(tmp));
+		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 		
-		System.exit(job.waitForCompletion(true) ? 0 : 1);
+		// Wait the job to finish
+		exit_state &= job.waitForCompletion(true);
+		
+		// ---------- Job2 : Compute histogram ---------- //
+		
+		Job job2 = Job.getInstance(conf, "Histogram");
+		job2.setJarByClass(Histogram.class);
+		
+		job2.setMapperClass(MyMapper2.class);
+		job2.setMapOutputKeyClass(Interval.class);
+		job2.setMapOutputValueClass(Text.class);
+
+		// job2.setCombinerClass(MyReducer2.class);
+		
+		job2.setReducerClass(MyReducer2.class);
+		job2.setOutputKeyClass(Interval.class);
+		job2.setOutputValueClass(LongWritable.class);
+		
+		FileInputFormat.addInputPath(job2, new Path(tmp+"/part-r-00000"));
+		job2.setInputFormatClass(SequenceFileInputFormat.class);
+		
+		FileOutputFormat.setOutputPath(job2, new Path(output));
+		job2.setOutputFormatClass(TextOutputFormat.class);
+		
+		// Wait the job to finish
+		exit_state &= job2.waitForCompletion(true);
+		
+		System.exit(exit_state ? 0 : 1);
 	}
 }
