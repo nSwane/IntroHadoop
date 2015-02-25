@@ -1,3 +1,9 @@
+Swane NAWAOUI
+Enis KULLA
+
+M2PGI
+								TP Introduction Hadoop
+
 1.1 Execution d'un modele
 
 	1.
@@ -68,10 +74,17 @@
 
 1.6 In-Mapper Combiner
 	
+	* L'utilisation du In-Mapper permet de gagner en rapidité grâce à la bufferisation des données mais regroupe
+	deux opérations différente en une, ce qui peut nuir à la lisibilité du code pour une application plus complexe.
+	
 1.7 Compteur
+
+	* Le rapport hadoop nous affiche dans une nouvelle section le compteur définit dans l'application et sa valeur.
 
 2.1 Map et Reduce
 
+	* code
+	
 2.2 Combiner
 	
 	* Question:
@@ -134,6 +147,12 @@
 3.1 Passes Map Reduce en chaîne
 
 	* Question:
-	
+
 		* Gain au niveau du 2e reduce:
+		
 		* Cas ex aequo:
+		
+			La partie shuffle and sort entre le map et le reduce se fait en même temps. Des qu'un map se termine,
+			les clés sont envoyées au reducer en position trié puis groupées.
+			Comme rien ne nous garantit qu'un map se termine avant un autre et que le sort n'est pas réeffectué à l'issu d'un reduce,
+			l'ordre des clés est potentiellement différent d'une execution à une autre.
